@@ -9,7 +9,7 @@ router.get('/verify-email', verifyEmail);
 
 router.get('/users', async (req, res) => {
     try {
-        const users = await User.find({}, '-password -verificationCode'); // Hide sensitive data
+        const users = await User.find({}, '-password -verificationCode  -__v'); // Hide sensitive data
         res.json(users);
     } catch (error) {
         console.error("Error fetching users:", error);
