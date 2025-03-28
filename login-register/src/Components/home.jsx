@@ -22,7 +22,7 @@ const Home = () => {
         // Remove the token from localStorage
         localStorage.removeItem('token');
         // Redirect to login page
-        navigate('/login');
+        navigate('/');
     };
 
     return (
