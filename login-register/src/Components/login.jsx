@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo } from '@mui/material/colors';
@@ -13,6 +14,7 @@ const theme = createTheme({
 });
 
 const Login = () => {
+    const navigate = useNavigate(); // Add useNavigate hook
     const paperStyle = { padding: 26, height: '70vh', width: 480, margin: '20px auto' };
     const avatarStyle = { backgroundColor: '#7a15bb9e' };
     const btstyle = { margin: '8px 0' };
@@ -20,6 +22,10 @@ const Login = () => {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
+
+    const handleSignUp = () => {
+        navigate('/signup'); 
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,19 +35,20 @@ const Login = () => {
         }
         try {
             const response = await api.post('/users/login', {
-                email,  // Use email instead of name
+                email,
                 password
             });
 
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
-                window.location.href = '/home'; // Redirect after login
+                navigate('/home'); 
             }
         } catch (error) {
             console.error('Login error:', error);
             setError('Invalid email or password');
         }
     };
+
     return (
         <Grid container
             direction="column"
@@ -106,11 +113,12 @@ const Login = () => {
                 <Stack direction='row' alignItems="center" gap={2} marginTop="auto">
                     <ThemeProvider theme={theme}>
                         <Typography> New User? </Typography>
-                        <Link href="#" color="primary" underline="hover">SignUp</Link>
+                        <Link href="#" color="primary" underline="hover" onClick={handleSignUp}>SignUp</Link>
                     </ThemeProvider>
                 </Stack>
             </Paper>
         </Grid>
     );
 };
+
 export default Login;

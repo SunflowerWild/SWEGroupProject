@@ -3,7 +3,7 @@ import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Butt
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors';
 
-export const EmailAuth = () =>{
+const EmailAuth = () =>{
     const paperStyle = {padding :26,height: '20vh', width :480, margin:'20px auto'}
     const avatarStyle = {backgroundColor: '#7a15bb9e'}
     const btstyle={margin: '8px 0'}
@@ -22,3 +22,5 @@ export const EmailAuth = () =>{
         </Grid>
     );
 }
+
+export default EmailAuth;

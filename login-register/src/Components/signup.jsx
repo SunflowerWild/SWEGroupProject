@@ -1,5 +1,6 @@
 import React from "react";
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors';
 //import Paper from '@mui/material/Paper';
@@ -15,10 +16,15 @@ const theme = createTheme({
     }
 });
   
-export const SignUp = () =>{
+const SignUp = () =>{
     const paperStyle = {padding :26,height: '70vh', width :480, margin:'20px auto'}
     const avatarStyle = {backgroundColor: '#7a15bb9e'}
     const btstyle={margin: '8px 0'}
+    const navigate = useNavigate();
+
+    const handleSignIn = () => {
+        navigate('/login'); 
+    }
     return(
         <Grid container
         direction="column"
@@ -30,7 +36,7 @@ export const SignUp = () =>{
                 <Avatar style={avatarStyle}><ApiIcon/></Avatar>
                 <h2>Sign Up</h2>
                 <Typography variant="caption">Create an account or </Typography>
-                <Link href="#" color="primary" underline="hover" variant="caption">Sign in</Link>
+                <Link href="#" color="primary" underline="hover" variant="caption" onClick={handleSignIn}>Sign in</Link>
                 </Grid>
                 <Stack spacing={4}>
                 <TextField id="outlined-basic" label="Name" placeholder='Enter Name' variant="outlined" fullWidth required/>
@@ -46,3 +52,5 @@ export const SignUp = () =>{
         </Grid>
     );
 };
+
+export default SignUp;
