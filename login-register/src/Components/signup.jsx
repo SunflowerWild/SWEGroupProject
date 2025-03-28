@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo } from '@mui/material/colors';
 import api from '../utils/api';
+import apiRoutes from '../utils/apiRoutes'; // Import apiRoutes
 import ApiIcon from '@mui/icons-material/Api';
 
 const theme = createTheme({
@@ -25,8 +26,8 @@ const SignUp = () => {
     const [name, setName] = React.useState('');
 
     const handleSignIn = () => {
-        navigate('/');
-    }
+        navigate('/login');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,16 +43,14 @@ const SignUp = () => {
         }
 
         try {
-            const response = await api.post('/users', {
+            const response = await api.post(apiRoutes.register, { // Use the route from apiRoutes
                 email,
                 password,
-                name,
-                confirmPassword
+                name
             });
 
-            if (response.data && response.data.message === 'User registered successfully') {
-                // After successful registration, navigate to the login page
-                navigate('/');
+            if (response.data?.message === 'User registered. Check your email for verification.') {
+                navigate('/eauth');
             } else {
                 setError('Registration failed');
             }
@@ -59,14 +58,10 @@ const SignUp = () => {
             console.error('Registration error:', error);
             setError('Registration failed');
         }
-    }
+    };
 
     return (
-        <Grid container
-            direction="column"
-            justifyContent="center"
-            alignItems="center"
-            style={{ minHeight: '100vh' }}>
+        <Grid container direction="column" justifyContent="center" alignItems="center" style={{ minHeight: '100vh' }}>
             <Paper elevation={10} style={paperStyle}>
                 <Grid align='center'>
                     <Avatar style={avatarStyle}><ApiIcon /></Avatar>
@@ -74,44 +69,61 @@ const SignUp = () => {
                     <Typography variant="caption">Create an account or </Typography>
                     <Link href="#" color="primary" underline="hover" variant="caption" onClick={handleSignIn}>Sign in</Link>
                 </Grid>
-                <Stack spacing={4}>
-                    <TextField
-                        id="name"
-                        label="Name"
-                        placeholder='Enter Name'
-                        variant="outlined"
-                        fullWidth
-                        required
-                        value={name} onChange={(e) => setName(e.target.value)} />
-                    <TextField
-                        id="email"
-                        label="Email"
-                        placeholder='Enter Email'
-                        variant="outlined"
-                        fullWidth
-                        required
-                        value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <TextField
-                        id="password"
-                        label="Password"
-                        placeholder='Enter password'
-                        variant="outlined"
-                        fullWidth
-                        required
-                        value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <TextField
-                        id="confirm-password"
-                        label="Confirm Password"
-                        placeholder='Confirm password'
-                        variant="outlined"
-                        fullWidth
-                        required
-                        value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                    <ThemeProvider theme={theme}>
-                        <Button variant="contained" type='submit' color='primary' style={btstyle} fullWidth onClick={handleSubmit}>Sign Up</Button>
-                    </ThemeProvider>
-                </Stack>
-                <Typography variant="caption">By signing up to create an account, you are accepting our terms of service and privacy policy</Typography>
+
+                {error && <Typography color="error">{error}</Typography>}
+
+                {/* Wrap fields and button inside a form */}
+                <form onSubmit={handleSubmit}>
+                    <Stack spacing={4}>
+                        <TextField
+                            id="name"
+                            label="Name"
+                            placeholder='Enter Name'
+                            variant="outlined"
+                            fullWidth
+                            required
+                            value={name} onChange={(e) => setName(e.target.value)}
+                        />
+                        <TextField
+                            id="email"
+                            label="Email"
+                            placeholder='Enter Email'
+                            variant="outlined"
+                            fullWidth
+                            required
+                            type="email"
+                            value={email} onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <TextField
+                            id="password"
+                            label="Password"
+                            placeholder='Enter password'
+                            variant="outlined"
+                            fullWidth
+                            required
+                            type="password"
+                            value={password} onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <TextField
+                            id="confirm-password"
+                            label="Confirm Password"
+                            placeholder='Confirm password'
+                            variant="outlined"
+                            fullWidth
+                            required
+                            type="password"
+                            value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        <ThemeProvider theme={theme}>
+                            {/* Submit button inside the form */}
+                            <Button variant="contained" color='primary' style={btstyle} fullWidth type="submit">
+                                Sign Up
+                            </Button>
+                        </ThemeProvider>
+                    </Stack>
+                </form>
+
+                <Typography variant="caption">By signing up, you accept our terms of service and privacy policy.</Typography>
             </Paper>
         </Grid>
     );

@@ -52,6 +52,8 @@ app.post('/users', async (req, res) => {
         // Save user to database
         await newUser.save();
 
+        authRoutes.registerUser(req, res);
+
         res.status(201).json({
             message: 'User registered successfully',
             userId: newUser._id

@@ -16,6 +16,7 @@ function App() {
         <Route path="/home" element={<Home/>} />
         <Route path="/eauth" element={<EmailAuth/>} />
         <Route path="/signup" element={<SignUp/>} />
+        <Route path="/login" element={<Login />} />   
         <Route path="*" element={<h1> PAGE NOT FOUND</h1>}/>
       </Routes>
 
