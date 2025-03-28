@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt'); // Password hashing
 const connectDB = require('./config/db'); // Database connection
 const authRoutes = require('./routes/authRoutes');
 const sgMail = require('@sendgrid/mail');
+const jwt = require('jsonwebtoken'); // JWT for authentication
+const User = require('./login-register/src/models/User');
 
 const app = express();
 
@@ -23,7 +25,7 @@ app.use(cors());
 connectDB();
 
 // In-memory users array (for testing purposes, use MongoDB in production)
-const users = [];
+//const users = [];
 
 // Get all users (for testing only)
 app.get('/users', (req, res) => {
@@ -33,34 +35,64 @@ app.get('/users', (req, res) => {
 // Register a new user
 app.post('/users', async (req, res) => {
     try {
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(req.body.password, salt);
-        const user = { name: req.body.name, password: hashedPassword };
-        users.push(user);
-        res.status(201).send('User registered successfully');
+        const { email, name, password } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Create new user
+        const newUser = new User({
+            email,
+            password  // Mongoose pre-save hook will handle hashing
+        });
+
+        // Save user to database
+        await newUser.save();
+
+        authRoutes.registerUser(req, res);
+
+        res.status(201).json({
+            message: 'User registered successfully',
+            userId: newUser._id
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
 // User login
 app.post('/users/login', async (req, res) => {
-    const user = users.find(user => user.name === req.body.name);
-
-    if (!user) {
-        return res.status(400).send('Cannot find user');
-    }
+    const { email, password } = req.body;
 
     try {
-        if (await bcrypt.compare(req.body.password, user.password)) {
-            res.send('Login successful');
+        // Find user by email in the database
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Cannot find user' });
+        }
+
+        // Compare the provided password with the stored password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (isMatch) {
+            // Generate a token for authentication
+            const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+            res.json({
+                message: 'Login successful',
+                token: token
+            });
         } else {
-            res.status(403).send('Invalid credentials');
+            res.status(403).json({ message: 'Invalid credentials' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
