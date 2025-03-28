@@ -25,7 +25,7 @@ const SignUp = () => {
     const [name, setName] = React.useState('');
 
     const handleSignIn = () => {
-        navigate('/login');
+        navigate('/');
     }
 
     const handleSubmit = async (e) => {
@@ -51,7 +51,7 @@ const SignUp = () => {
 
             if (response.data && response.data.message === 'User registered successfully') {
                 // After successful registration, navigate to the login page
-                navigate('/login');
+                navigate('/');
             } else {
                 setError('Registration failed');
             }
