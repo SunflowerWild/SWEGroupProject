@@ -3,13 +3,7 @@ import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Butt
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors';
 
-const theme = createTheme({
-    palette: {
-      primary: indigo,
-      secondary: blueGrey,
-    }
-});
-export const Home = () =>{
+export const EmailAuth = () =>{
     const paperStyle = {padding :26,height: '20vh', width :480, margin:'20px auto'}
     const avatarStyle = {backgroundColor: '#7a15bb9e'}
     const btstyle={margin: '8px 0'}
@@ -21,14 +15,10 @@ export const Home = () =>{
         style={{ minHeight: '100vh' }}>
             <Paper elevation={10} style={paperStyle}>
                 <Grid align = 'center'>
-                <h1>Welcome home</h1>
-                
-                <ThemeProvider theme={theme}>
-                    <Button variant="contained" type='submit' color='primary' style={btstyle} fullWidth>Log Out</Button>
-                </ThemeProvider>
+                <h1>Email Verification</h1>
+                <TextField id="outlined-basic" label="Verification Code" placeholder='Enter Code' variant="outlined" fullWidth required/>
                 </Grid>
             </Paper>
         </Grid>
     );
-};
-    
+}
