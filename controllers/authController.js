@@ -1,4 +1,4 @@
-﻿const User = require('../models/User');
+﻿const User = require('../login-register/src/models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -6,7 +6,7 @@ const crypto = require('crypto');
 require('dotenv').config();
 
 // Register User & Send Verification Email
-const sendEmail = require('../utils/emailService'); // Make sure this is correctly imported
+const sendEmail = require('../login-register/src/utils/emailService'); // Make sure this is correctly imported
 
 exports.registerUser = async (req, res) => {
     try {
