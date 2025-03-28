@@ -6,6 +6,7 @@ import { blueGrey, indigo, } from '@mui/material/colors';
 //import Avatar from '@mui/material/Avatar';
 //import Grid from '@mui/material/Grid';
 
+
 import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 
 const theme = createTheme({
@@ -15,7 +16,7 @@ const theme = createTheme({
     },
   });
   
-const Login = () =>{
+export const Login = () =>{
     const paperStyle = {padding :26,height: '70vh', width :480, margin:'20px auto'}
     const avatarStyle = {backgroundColor: '#7a15bb9e'}
     const btstyle={margin: '8px 0'}
@@ -61,4 +62,3 @@ const Login = () =>{
         </Grid>
     );
 };
-export default Login
