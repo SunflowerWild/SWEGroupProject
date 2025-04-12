@@ -2,6 +2,7 @@ import React from "react";
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors';
+import { Link as RouterLink } from 'react-router-dom';
 //import Paper from '@mui/material/Paper';
 //import Avatar from '@mui/material/Avatar';
 //import Grid from '@mui/material/Grid';
@@ -54,7 +55,7 @@ export const Login = () =>{
                 <Stack direction='row' alignItems="center" gap={2} marginTop="auto">
                     <ThemeProvider theme={theme}>
                     <Typography> New User? </Typography>
-                    <Link href="#" color="primary" underline="hover">SignUp</Link>
+                    <Link component={RouterLink} to="/signup" color="primary" underline="hover">Sign Up</Link>
                     </ThemeProvider>
                 </Stack>
                 

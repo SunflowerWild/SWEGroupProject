@@ -1,7 +1,8 @@
 import React from "react";
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { blueGrey, indigo, } from '@mui/material/colors';
+import { blueGrey, indigo, } from '@mui/material/colors'
+import { Link as RouterLink } from 'react-router-dom'
 //import Paper from '@mui/material/Paper';
 //import Avatar from '@mui/material/Avatar';
 //import Grid from '@mui/material/Grid';
@@ -30,7 +31,7 @@ export const SignUp = () =>{
                 <Avatar style={avatarStyle}><ApiIcon/></Avatar>
                 <h2>Sign Up</h2>
                 <Typography variant="caption">Create an account or </Typography>
-                <Link href="#" color="primary" underline="hover" variant="caption">Sign in</Link>
+                <Link component={RouterLink} to="/" color="primary" underline="hover" variant="caption">Sign in</Link>
                 </Grid>
                 <Stack spacing={4}>
                 <TextField id="outlined-basic" label="Name" placeholder='Enter Name' variant="outlined" fullWidth required/>

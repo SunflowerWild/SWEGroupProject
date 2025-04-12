@@ -2,6 +2,7 @@ import React from "react";
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors';
+import { DashboardHeader } from "./DashboardHeader"; // adjust path as needed
 
 export const EmailAuth = () =>{
     const paperStyle = {padding :26,height: '20vh', width :480, margin:'20px auto'}
