@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Routes for user authentication and management
 router.post('/register', registerUser);
-router.get('/verify-email', verifyEmail);
+router.post('/verify-email', verifyEmail);
 router.post('/whitelist', whitelist);
 router.post('/login', loginUser);
 router.get('/users', displayUsers);

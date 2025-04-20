@@ -11,6 +11,7 @@ const pcSchema = new mongoose.Schema({
     Location: { type: String, required: true, index: true },
     projectTag: { type: String, index: true },
     isAvailable: { type: Boolean, required: true, default: true },
+    checkedOut: { type: Boolean, required: true, default: false },
     lastCheckedOut: { type: Date },
     checkoutHistory: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

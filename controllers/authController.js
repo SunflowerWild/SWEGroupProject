@@ -14,12 +14,11 @@ exports.registerUser = async (req, res) => {
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-        const hashedPassword = await bcrypt.hash(password, 10);
         const verificationCode = crypto.randomBytes(6).toString('hex');
 
         const isAdmin = adminCode === process.env.ADMIN_CODE; // Check if the admin code matches
 
-        const newUser = new User({ email, password: hashedPassword, verificationCode, isAdmin });
+        const newUser = new User({ email, password, verificationCode, isAdmin });
         await newUser.save();
 
         // Send verification email
@@ -36,9 +35,10 @@ exports.registerUser = async (req, res) => {
 //  Verify email
 exports.verifyEmail = async (req, res) => {
     try {
-        const { email, code } = req.query;
+        const { email, code } = req.body;
 
         const user = await User.findOne({ email, verificationCode: code });
+
         if (!user) return res.status(400).send('Invalid verification code.');
 
         user.isVerified = true;
@@ -53,8 +53,8 @@ exports.verifyEmail = async (req, res) => {
 // Whitelist a user as an admin
 exports.whitelist = async (req, res) => {
     try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
+        const { id } = req.body;
+        const user = await User.findByIdAndDelete(id);
         // Find the user by ID
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -99,6 +99,7 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+// Display all users
 exports.displayUsers = async (req, res) => {
     try {
         const users = await User.find({}, '-password -verificationCode  -__v'); // Hide sensitive data
@@ -109,6 +110,7 @@ exports.displayUsers = async (req, res) => {
     }
 };
 
+// Delete a user by ID
 exports.deleteUser = async (req, res) => {
     try {
          const { id } = req.body;
