@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+
 const User = require('../login-register/src/models/User');
 
 // Middleware to check if the user is authenticated
@@ -31,3 +32,4 @@ exports.isAdmin = (req, res, next) => {
     }
     next();
 };
+

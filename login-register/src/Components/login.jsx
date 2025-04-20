@@ -2,8 +2,14 @@ import React from "react";
 import { useNavigate } from 'react-router-dom';
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { blueGrey, indigo } from '@mui/material/colors';
-import api from '../utils/api';
+import { blueGrey, indigo, } from '@mui/material/colors';
+import { Link as RouterLink } from 'react-router-dom';
+//import Paper from '@mui/material/Paper';
+//import Avatar from '@mui/material/Avatar';
+//import Grid from '@mui/material/Grid';
+
+
+
 import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 
 const theme = createTheme({
@@ -112,8 +118,8 @@ const Login = () => {
                 </ThemeProvider>
                 <Stack direction='row' alignItems="center" gap={2} marginTop="auto">
                     <ThemeProvider theme={theme}>
-                        <Typography> New User? </Typography>
-                        <Link href="#" color="primary" underline="hover" onClick={handleSignUp}>SignUp</Link>
+                    <Typography> New User? </Typography>
+                    <Link component={RouterLink} to="/signup" color="primary" underline="hover">Sign Up</Link>
                     </ThemeProvider>
                 </Stack>
             </Paper>

@@ -1,4 +1,5 @@
 const express = require('express');
+
 const { registerUser, verifyEmail, whitelist, loginUser, displayUsers, deleteUser } = require('../controllers/authController');
 const User = require('../login-register/src/models/User'); 
 
@@ -11,5 +12,6 @@ router.post('/whitelist', whitelist);
 router.post('/login', loginUser);
 router.get('/users', displayUsers);
 router.delete('/users', deleteUser);
+
 
 module.exports = router;

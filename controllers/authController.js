@@ -1,7 +1,8 @@
-﻿const User = require('../login-register/src/models/User');
+const User = require('../login-register/src/models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+
 const sendEmail = require('../login-register/src/utils/emailService'); 
 
 require('dotenv').config();
@@ -13,6 +14,7 @@ exports.registerUser = async (req, res) => {
 
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
 
         const verificationCode = crypto.randomBytes(6).toString('hex');
 
@@ -32,6 +34,7 @@ exports.registerUser = async (req, res) => {
     }
 };
 
+
 //  Verify email
 exports.verifyEmail = async (req, res) => {
     try {
@@ -49,6 +52,7 @@ exports.verifyEmail = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 // Whitelist a user as an admin
 exports.whitelist = async (req, res) => {

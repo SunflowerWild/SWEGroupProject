@@ -2,9 +2,12 @@ import React from "react";
 import { Stack, TextField, Paper, Avatar, Grid, Button, Link, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { blueGrey, indigo } from '@mui/material/colors';
-import api from '../utils/api';
-import apiRoutes from '../utils/apiRoutes'; // Import apiRoutes
+import { blueGrey, indigo, } from '@mui/material/colors'
+import { Link as RouterLink } from 'react-router-dom'
+//import Paper from '@mui/material/Paper';
+//import Avatar from '@mui/material/Avatar';
+//import Grid from '@mui/material/Grid';
+
 import ApiIcon from '@mui/icons-material/Api';
 
 const theme = createTheme({
@@ -63,11 +66,12 @@ const SignUp = () => {
     return (
         <Grid container direction="column" justifyContent="center" alignItems="center" style={{ minHeight: '100vh' }}>
             <Paper elevation={10} style={paperStyle}>
-                <Grid align='center'>
-                    <Avatar style={avatarStyle}><ApiIcon /></Avatar>
-                    <h2>Sign Up</h2>
-                    <Typography variant="caption">Create an account or </Typography>
-                    <Link href="#" color="primary" underline="hover" variant="caption" onClick={handleSignIn}>Sign in</Link>
+                <Grid align = 'center'>
+                <Avatar style={avatarStyle}><ApiIcon/></Avatar>
+                <h2>Sign Up</h2>
+                <Typography variant="caption">Create an account or </Typography>
+                <Link component={RouterLink} to="/" color="primary" underline="hover" variant="caption">Sign in</Link>
+
                 </Grid>
 
                 {error && <Typography color="error">{error}</Typography>}
