@@ -6,7 +6,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const sendEmail = async (email, code) => {
     const msg = {
         to: email,
-        from: 'hardwarehivebybuildsync@gmail.com', // Your verified SendGrid sender email
+        from: 'hardwarehivebybuildsync@gmail.com',
         subject: 'Verify Your Email',
         text: `Your verification code is: ${code}`,
     };

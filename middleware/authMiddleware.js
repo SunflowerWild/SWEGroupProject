@@ -1,23 +1,33 @@
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const User = require('../login-register/src/models/User');
 
-module.exports = (req, res, next) => {
-    const token = req.header('Authorization');
-    if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
+// Middleware to check if the user is authenticated
+exports.isAuthenticated = async (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authentication required' });
+    }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
+        const user = await User.findById(decoded.userId);
+
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
+        req.user = user; // Attach user to the request object
         next();
-    } catch (err) {
+    } catch (error) {
         res.status(401).json({ message: 'Invalid token' });
     }
 };
 
-const isAdmin = (req, res, next) => {
-    if (req.user && req.user.isAdmin) {
-        next();
-    } else {
-        res.status(403).json({ message: 'Admin access required' });
+// Middleware to check if the user is an admin
+exports.isAdmin = (req, res, next) => {
+    if (!req.user || !req.user.isAdmin) {
+        return res.status(403).json({ message: 'Access denied. Admins only.' });
     }
+    next();
 };

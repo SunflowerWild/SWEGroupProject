@@ -5,6 +5,7 @@ const partSchema = new mongoose.Schema({
     location: { type: String, required: true, index: true },
     projectTag: { type: String, index: true, default: 'none' },
     isAvailable: { type: Boolean, default: true },
+    checkedOut: { type: Boolean, required: true, default: false },
     type: {
         type: String,
         enum: [

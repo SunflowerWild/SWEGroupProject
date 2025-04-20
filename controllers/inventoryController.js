@@ -38,10 +38,10 @@ exports.addPC = async (req, res) => {
     }
 };
 
-// In controllers/inventoryController.js
+// Delete an item by its unique ID
 exports.deleteItem = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
         // Try to delete as part first
         let deletedItem = await Part.findByIdAndDelete(id);
@@ -68,7 +68,7 @@ exports.deleteItem = async (req, res) => {
     }
 };
 
-
+// Display full inventory
 exports.getInventorySummary = async (req, res) => {
     try {
         const summary = await Part.aggregate([
@@ -144,5 +144,73 @@ exports.getInventorySummary = async (req, res) => {
         res.json(summary);
     } catch (error) {
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Checkout an item by its unique ID
+exports.checkoutItem = async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        // Try to find as part first
+        let part = await Part.findByID(id);
+   
+
+        // If not found, try to find as PC
+        if (!part) {
+            part = await PC.findByID(id);
+            itemType = 'pc';
+        }
+
+        if (!part) {
+            return res.status(404).json({ message: 'Item not found' });
+        }
+
+        part.checkedOut = true;
+        part.isAvailable = false;
+        await part.save();
+
+        res.json({
+            message: `${itemType.toUpperCase()} deleted successfully`,
+            itemType,
+            deletedItem
+        });
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Checkout an item by its unique ID
+exports.returnItem = async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        // Try to find as part first
+        let part = await Part.findByID(id);
+
+
+        // If not found, try to find as PC
+        if (!part) {
+            part = await PC.findByID(id);
+            itemType = 'pc';
+        }
+
+        if (!part) {
+            return res.status(404).json({ message: 'Item not found' });
+        }
+
+        part.checkedOut = false;
+        part.isAvailable = true;
+        await part.save();
+
+        res.json({
+            message: `${itemType.toUpperCase()} deleted successfully`,
+            itemType,
+            deletedItem
+        });
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
