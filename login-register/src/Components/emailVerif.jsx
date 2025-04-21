@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors';
 import { DashboardHeader } from "./DashboardHeader"; // adjust path as needed
+import api from '../utils/apiRoutes'; 
 
 
 const EmailAuth = () =>{

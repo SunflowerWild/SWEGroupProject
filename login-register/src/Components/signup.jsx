@@ -3,6 +3,8 @@ import { Stack, TextField, Paper, Avatar, Grid, Button, Link, Typography } from 
 import { useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo, } from '@mui/material/colors'
+import api from '../utils/api'; // Adjust the path to match your project structure
+import apiRoutes from '../utils/apiRoutes'; // Ensure this path matches your project structure
 import { Link as RouterLink } from 'react-router-dom'
 //import Paper from '@mui/material/Paper';
 //import Avatar from '@mui/material/Avatar';

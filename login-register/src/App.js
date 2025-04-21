@@ -2,10 +2,10 @@ import React from 'react'
 import './App.css';
 import { Routes, Route } from 'react-router-dom';
 
-import {Login} from './Components/login';
-import {SignUp} from './Components/signup'
+import Login from './Components/login';
+import SignUp from './Components/signup'
 import {Dashboard} from './Components/home'
-import {EmailAuth} from './Components/emailVerif'
+import EmailAuth from './Components/emailVerif'
 import {Inventory} from './Components/inventory';
 import {History} from './Components/history';
 
