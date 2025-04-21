@@ -14,7 +14,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 
 const app = express();
 
-// ✅ Load SendGrid API Key
+// Load SendGrid API Key
 if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_API_KEY.startsWith("SG.")) {
     console.error("Error: SendGrid API key is missing or incorrect.");
     process.exit(1);

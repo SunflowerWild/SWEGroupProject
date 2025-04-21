@@ -7,6 +7,8 @@ import { Link as RouterLink } from 'react-router-dom'
 //import Paper from '@mui/material/Paper';
 //import Avatar from '@mui/material/Avatar';
 //import Grid from '@mui/material/Grid';
+import api from '../utils/api'; // Import your API utility
+import apiRoutes from '../utils/apiRoutes'; // Import your API routes
 
 import ApiIcon from '@mui/icons-material/Api';
 
@@ -33,35 +35,36 @@ const SignUp = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        if (!email || !password || !confirmPassword || !name) {
-            setError('Please fill in all fields');
-            return;
-        }
+    if (!email || !password || !confirmPassword || !name) {
+        setError('Please fill in all fields');
+        return;
+    }
 
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
+    if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        return;
+    }
 
-        try {
-            const response = await api.post(apiRoutes.register, { // Use the route from apiRoutes
-                email,
-                password,
-                name
-            });
+    try {
+        const response = await api.post(apiRoutes.register, { // Use the route from apiRoutes
+            email,
+            password,
+            name
+        });
 
-            if (response.data?.message === 'User registered. Check your email for verification.') {
-                navigate('/eauth');
-            } else {
-                setError('Registration failed');
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
+        if (response.data?.message === 'User registered. Check your email for verification.') {
+            localStorage.setItem('email', email); // Save the email to localStorage
+            navigate('/eauth'); // Redirect to email verification page
+        } else {
             setError('Registration failed');
         }
-    };
+    } catch (error) {
+        console.error('Registration error:', error);
+        setError('Registration failed');
+    }
+};
 
     return (
         <Grid container direction="column" justifyContent="center" alignItems="center" style={{ minHeight: '100vh' }}>

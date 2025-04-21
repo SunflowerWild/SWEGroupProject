@@ -6,6 +6,7 @@ import { blueGrey, indigo } from '@mui/material/colors';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { DashboardHeader } from "./DashboardHeader"; // adjust path as needed
 
+
 // Create the theme
 const theme = createTheme({
   palette: {
