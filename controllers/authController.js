@@ -106,7 +106,7 @@ exports.loginUser = async (req, res) => {
 // Display all users
 exports.displayUsers = async (req, res) => {
     try {
-        const users = await User.find({}, '-password -verificationCode  -__v'); // Hide sensitive data
+        const users = await User.find({}, '-password  -__v'); // Hide sensitive data
         res.json(users);
     } catch (error) {
         console.error("Error fetching users:", error);
