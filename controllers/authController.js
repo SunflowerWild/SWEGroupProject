@@ -58,8 +58,9 @@ exports.verifyEmail = async (req, res) => {
 exports.whitelist = async (req, res) => {
     try {
         const { id } = req.body;
-        const user = await User.findByIdAndDelete(id);
+
         // Find the user by ID
+        const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -74,7 +75,6 @@ exports.whitelist = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
 // Login User & Return JWT Token
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
