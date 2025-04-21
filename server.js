@@ -8,6 +8,10 @@ const sgMail = require('@sendgrid/mail');
 const jwt = require('jsonwebtoken'); // JWT for authentication
 const User = require('./login-register/src/models/User');
 
+const inventoryRoutes = require('./routes/inventoryRoutes');
+
+
+
 const app = express();
 
 // ✅ Load SendGrid API Key
@@ -98,6 +102,9 @@ app.post('/users/login', async (req, res) => {
 
 // Auth Routes (for MongoDB-based authentication)
 app.use('/api/auth', authRoutes);
+
+// Inventory Routes
+app.use('/api/inventory', inventoryRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 3500;

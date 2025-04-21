@@ -1,28 +1,30 @@
-﻿const User = require('../login-register/src/models/User');
+const User = require('../login-register/src/models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-require('dotenv').config();
-
-// Register User & Send Verification Email
 const sendEmail = require('../login-register/src/utils/emailService'); 
 
+require('dotenv').config();
+
+// Register user
 exports.registerUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, adminCode } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+
         const verificationCode = crypto.randomBytes(6).toString('hex');
 
-        const newUser = new User({ email, password: hashedPassword, verificationCode });
+        const isAdmin = adminCode === process.env.ADMIN_CODE; // Check if the admin code matches
+
+        const newUser = new User({ email, password, verificationCode, isAdmin });
         await newUser.save();
 
         // Send verification email
-        await sendEmail(email, verificationCode); // Ensure this is awaited
+        await sendEmail(email, verificationCode);
         console.log("EMAIL IS SENT SUCCESSFULLY");
 
         res.status(201).json({ message: 'User registered. Check your email for verification.' });
@@ -33,12 +35,13 @@ exports.registerUser = async (req, res) => {
 };
 
 
-//  Verify Email
+//  Verify email
 exports.verifyEmail = async (req, res) => {
     try {
-        const { email, code } = req.query;
+        const { email, code } = req.body;
 
         const user = await User.findOne({ email, verificationCode: code });
+
         if (!user) return res.status(400).send('Invalid verification code.');
 
         user.isVerified = true;
@@ -50,23 +53,79 @@ exports.verifyEmail = async (req, res) => {
     }
 };
 
+
+// Whitelist a user as an admin
+exports.whitelist = async (req, res) => {
+    try {
+        const { id } = req.body;
+        const user = await User.findByIdAndDelete(id);
+        // Find the user by ID
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update the isAdmin field
+        user.isAdmin = true;
+        await user.save();
+
+        res.status(200).json({ message: 'User successfully whitelisted as an admin.' });
+    } catch (error) {
+        console.error('Error whitelisting user:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Login User & Return JWT Token
 exports.loginUser = async (req, res) => {
+    const { email, password } = req.body;
+
     try {
-        const { email, password } = req.body;
-
+        // Check if user exists
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'User not found' });
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
 
-        if (!user.isVerified) return res.status(401).json({ message: 'Email not verified' });
-
+        // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Incorrect password' });
+        if (!isMatch) {
+            return res.status(403).json({ message: "Invalid credentials" });
+        }
 
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        // Generate JWT Token
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ message: 'Login successful', token });
+        res.json({ token, message: "Login successful" });
+
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error("Login error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+// Display all users
+exports.displayUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, '-password -verificationCode  -__v'); // Hide sensitive data
+        res.json(users);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// Delete a user by ID
+exports.deleteUser = async (req, res) => {
+    try {
+         const { id } = req.body;
+
+        const user = await User.findByIdAndDelete(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json({ message: "User deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };

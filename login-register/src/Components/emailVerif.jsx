@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import {TextField, Paper, Grid, Button} from '@mui/material';
-import api from '../utils/api';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { blueGrey, indigo, } from '@mui/material/colors';
+import { DashboardHeader } from "./DashboardHeader"; // adjust path as needed
+
 
 const EmailAuth = () =>{
     const paperStyle = {padding :26,height: '20vh', width :480, margin:'20px auto'}
