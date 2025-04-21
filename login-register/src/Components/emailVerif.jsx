@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {TextField, Paper, Grid} from '@mui/material';
+import {TextField, Paper, Grid, Button} from '@mui/material';
 import api from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,6 +39,7 @@ const EmailAuth = () =>{
                 <Grid align = 'center'>
                 <h1>Email Verification</h1>
                 <TextField id="outlined-basic" label="Verification Code" placeholder='Enter Code' variant="outlined" fullWidth required/>
+                <Button type='submit' color='primary' variant="contained" style={btstyle} fullWidth onClick={handleSubmit}>Verify</Button>
                 </Grid>
             </Paper>
         </Grid>

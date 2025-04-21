@@ -1,5 +1,10 @@
 node_modules/
 __pycache__/
 .vs
+<<<<<<< Updated upstream
 .json
 .env
+=======
+.env
+.json
+>>>>>>> Stashed changes
