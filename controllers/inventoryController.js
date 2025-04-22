@@ -200,6 +200,13 @@ exports.checkoutItem = async (req, res) => {
         // Send email to the user checking out the item
         await sendEmail(userEmail, emailSubject, emailBody);
 
+        console.log("Creating history record:", {
+            partName: part.name,
+            partNumber: part._id.toString(),
+            action: 'checkout',
+            user: userEmail,
+        });
+
         // Create a history entry
         await History.create({
             partName: part.name || 'Unnamed Item',
@@ -223,7 +230,8 @@ exports.checkoutItem = async (req, res) => {
 exports.returnItem = async (req, res) => {
     try {
         const { id } = req.body;
-        const adminEmail = req.user.email; // Get the admin's email from req.user
+        //const adminEmail = req.user.email; // Get the admin's email from req.user
+        const userEmail = req.user?.email || req.body.email || 'Unknown';
 
         // Try to find the item as a part first
         let part = await Part.findById(id);
@@ -249,12 +257,19 @@ exports.returnItem = async (req, res) => {
         part.isAvailable = true;
         await part.save();
 
+        console.log("Creating history record:", {
+            partName: part.name,
+            partNumber: part._id.toString(),
+            action: 'return',
+            user: userEmail,
+        });
+        
         // Create a history entry
         await History.create({
             partName: part.name || 'Unnamed Item',
             partNumber: part._id.toString(),
             action: 'return',
-            user: adminEmail,
+            user: userEmail,
         });
 
         res.json({
