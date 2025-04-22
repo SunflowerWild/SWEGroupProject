@@ -1,6 +1,10 @@
 const Part = require('../login-register/src/models/Part');
 const PC = require('../login-register/src/models/PC');
 const mongoose = require('mongoose'); // Add this line
+const User = require('../login-register/src/models/User'); // Import the User model
+const sendEmail = require('../login-register/src/utils/emailService'); // Import the sendEmail utility
+const History = require('../login-register/src/models/History'); // Import the History model
+
 
 
 require('dotenv').config();
@@ -151,14 +155,15 @@ exports.getInventorySummary = async (req, res) => {
 exports.checkoutItem = async (req, res) => {
     try {
         const { id } = req.body;
+        const userEmail = req.user?.email || req.body.email; // Get the user's email from req.user or req.body
 
-        // Try to find as part first
-        let part = await Part.findByID(id);
-   
+        // Try to find the item as a part first
+        let part = await Part.findById(id);
+        let itemType = 'part';
 
-        // If not found, try to find as PC
+        // If not found, try to find it as a PC
         if (!part) {
-            part = await PC.findByID(id);
+            part = await PC.findById(id);
             itemType = 'pc';
         }
 
@@ -166,33 +171,43 @@ exports.checkoutItem = async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
+        // Mark the item as checked out
         part.checkedOut = true;
         part.isAvailable = false;
         await part.save();
 
+        // Create a history entry
+        await History.create({
+            partName: part.name || 'Unnamed Item',
+            partNumber: part._id.toString(),
+            action: 'Check out',
+            user: userEmail,
+        });
+
         res.json({
-            message: `${itemType.toUpperCase()} deleted successfully`,
+            message: `${itemType.toUpperCase()} checked out successfully`,
             itemType,
-            deletedItem
+            part,
         });
     } catch (error) {
-        console.error('Error deleting item:', error);
+        console.error('Error checking out item:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
-// Checkout an item by its unique ID
+// Return an item by its unique ID
 exports.returnItem = async (req, res) => {
     try {
         const { id } = req.body;
+        const adminEmail = req.user.email; // Get the admin's email from req.user
 
-        // Try to find as part first
-        let part = await Part.findByID(id);
+        // Try to find the item as a part first
+        let part = await Part.findById(id);
+        let itemType = 'part';
 
-
-        // If not found, try to find as PC
+        // If not found, try to find it as a PC
         if (!part) {
-            part = await PC.findByID(id);
+            part = await PC.findById(id);
             itemType = 'pc';
         }
 
@@ -200,17 +215,36 @@ exports.returnItem = async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
+        // Mark the item as returned
         part.checkedOut = false;
         part.isAvailable = true;
         await part.save();
 
+        // Create a history entry
+        await History.create({
+            partName: part.name || 'Unnamed Item',
+            partNumber: part._id.toString(),
+            action: 'return',
+            user: adminEmail,
+        });
+
         res.json({
-            message: `${itemType.toUpperCase()} deleted successfully`,
+            message: `${itemType.toUpperCase()} returned successfully`,
             itemType,
-            deletedItem
+            part,
         });
     } catch (error) {
-        console.error('Error deleting item:', error);
+        console.error('Error returning item:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.getHistory = async (req, res) => {
+    try {
+        const history = await History.find().sort({ timestamp: -1 }); // Sort by most recent first
+        res.json(history);
+    } catch (error) {
+        console.error('Error fetching history:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
