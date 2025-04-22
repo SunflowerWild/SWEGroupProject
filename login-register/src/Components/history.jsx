@@ -1,6 +1,5 @@
-// History.jsx
 import React from "react";
-import { Paper, Avatar, Grid, Typography, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Paper, Avatar, Grid, Typography, Table, TableHead, TableRow, TableCell, TableBody, Button } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blueGrey, indigo } from '@mui/material/colors';
 import HistoryIcon from '@mui/icons-material/History';
@@ -41,7 +40,11 @@ export const History = () => {
                 <TableCell>2025-04-12</TableCell>
                 <TableCell>PC #10</TableCell>
                 <TableCell>Test Student</TableCell>
-                <TableCell>Check Out</TableCell>
+                <TableCell>
+                  <Button variant="contained" color="primary" size="small">
+                    Return
+                  </Button>
+                </TableCell>
                 <TableCell>3</TableCell>
               </TableRow>
             </TableBody>
