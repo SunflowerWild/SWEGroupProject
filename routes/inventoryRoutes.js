@@ -1,6 +1,7 @@
 const express = require('express');
-const { addPart, addPC, deleteItem, getInventorySummary, checkoutItem, returnItem } = require('../controllers/inventoryController');
+const { addPart, addPC, deleteItem, getInventorySummary, checkoutItem, returnItem, getHistory } = require('../controllers/inventoryController');
 const { isAuthenticated, isAdmin } = require('../middleware/authMiddleware');
+
 
 const router = express.Router();
 
@@ -11,5 +12,7 @@ router.delete('/items', isAuthenticated, isAdmin, deleteItem); // Only admins ca
 router.get('/summary', isAuthenticated, getInventorySummary); // All authenticated users can view the summary
 router.post('/checkout', isAuthenticated, checkoutItem);
 router.post('/returnItem', isAuthenticated, isAdmin, returnItem);
+router.get('/history', isAuthenticated, isAdmin, getHistory);
+
 
 module.exports = router;
