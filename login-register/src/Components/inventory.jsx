@@ -78,36 +78,42 @@ export const Inventory = () => {
   };
 
 
-  const handleCheckout = async (itemId) => {
-    try {
-      const token = localStorage.getItem('token');
-      console.log('Token being used:', token);
-      console.log('Checking out item with id:', itemId);
+    const handleCheckout = async (itemId, type, location) => {
+        try {
+            const token = localStorage.getItem('token');
+            console.log('Token being used:', token);
+            console.log('Attempting to check out item with id:', itemId);
 
-      const response = await api.post(`${API_URL}/checkout`, { id: itemId }, {
-        timeout: TIMEOUT_MS,
-        headers: {
-          Authorization: `Bearer ${token}`,
+            // Send the request to check out the item
+            const response = await api.post(`${API_URL}/checkout`, { id: itemId, type, location }, {
+                timeout: TIMEOUT_MS,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            console.log('Checkout response:', response.data);
+
+            // Refresh the inventory list after successful checkout
+            fetchInventory();
+            showAlert('Item checked out successfully', 'success');
+        } catch (error) {
+            console.error('Full error object:', error);
+            console.error('Response data:', error.response?.data);
+            console.error('Response status:', error.response?.status);
+
+            // Handle specific errors
+            if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+                showAlert("Request timed out. Please try again.", 'error');
+            } else if (error.response?.data?.message === 'No available items found for checkout.') {
+                showAlert('No available items of this type and location to check out.', 'error');
+            } else if (error.response?.data?.message === 'User not found') {
+                showAlert('Authentication issue: Please try logging out and back in', 'error');
+            } else {
+                showAlert(`Failed to check out item: ${error.response?.data?.message || error.message}`, 'error');
+            }
         }
-      });
-
-      console.log('Checkout response:', response.data);
-      fetchInventory();
-      showAlert('Item checked out successfully', 'success');
-    } catch (error) {
-      console.error('Full error object:', error);
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
-
-      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        showAlert("Request timed out. Please try again.", 'error');
-      } else if (error.response?.data?.message === 'User not found') {
-        showAlert('Authentication issue: Please try logging out and back in', 'error');
-      } else {
-        showAlert(`Failed to check out item: ${error.response?.data?.message || error.message}`, 'error');
-      }
-    }
-  };
+    };
 
   const showAlert = (message, severity) => {
     setAlertMessage(message);
@@ -201,15 +207,15 @@ export const Inventory = () => {
                       <TableCell>
                         {item.itemIds && item.itemIds.length > 0 ? (
                           // Single checkout button that uses the first ID
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={() => handleCheckout(item.itemIds[0])}
-                            disabled={item.availableQuantity <= 0}
-                          >
-                            CHECK OUT
-                          </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={() => handleCheckout(item.itemIds[0], item.type, item.location)}
+                                disabled={item.availableQuantity <= 0}
+                            >
+                                CHECK OUT
+                            </Button>
                         ) : (
                           <Typography variant="caption">No IDs available</Typography>
                         )}
