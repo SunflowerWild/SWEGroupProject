@@ -42,13 +42,16 @@ export const Inventory = () => {
 
     setLoading(true);
     setError(null);
+    const token = localStorage.getItem('token'); // Get token from storage
     console.log('Fetching inventory from:', `${api.defaults.baseURL}${API_URL}/summary`);
     console.log('Retry count:', retry ? retryCount + 1 : 0);
 
     try {
-      // Using the pre-configured api instance with longer timeout
       const response = await api.get(`${API_URL}/summary`, {
-        timeout: TIMEOUT_MS
+        timeout: TIMEOUT_MS,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
 
       console.log('Inventory API response:', response);
@@ -62,10 +65,9 @@ export const Inventory = () => {
     } catch (error) {
       console.error('Error fetching inventory:', error);
 
-      // Handle timeout specifically
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        setError(`Server is taking too long to respond. Please try again later.`);
-        showAlert(`Request timed out. The server might be busy.`, 'error');
+        setError("Server is taking too long to respond. Please try again later.");
+        showAlert("Request timed out. The server might be busy.", 'error');
       } else {
         setError(`Failed to load inventory: ${error.message}`);
         showAlert(`Failed to load inventory: ${error.response?.data?.message || error.message}`, 'error');
@@ -75,24 +77,30 @@ export const Inventory = () => {
     }
   };
 
+
   const handleCheckout = async (itemId) => {
     try {
-      console.log('Token being used:', localStorage.getItem('token'));
+      const token = localStorage.getItem('token');
+      console.log('Token being used:', token);
       console.log('Checking out item with id:', itemId);
+
       const response = await api.post(`${API_URL}/checkout`, { id: itemId }, {
-        timeout: TIMEOUT_MS // Use the same increased timeout
+        timeout: TIMEOUT_MS,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
+
       console.log('Checkout response:', response.data);
-      fetchInventory(); // Refresh inventory after checkout
+      fetchInventory();
       showAlert('Item checked out successfully', 'success');
     } catch (error) {
       console.error('Full error object:', error);
       console.error('Response data:', error.response?.data);
       console.error('Response status:', error.response?.status);
 
-      // Handle timeout specifically
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        showAlert(`Request timed out. Please try again.`, 'error');
+        showAlert("Request timed out. Please try again.", 'error');
       } else if (error.response?.data?.message === 'User not found') {
         showAlert('Authentication issue: Please try logging out and back in', 'error');
       } else {
