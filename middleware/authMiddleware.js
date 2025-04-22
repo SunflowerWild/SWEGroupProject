@@ -4,24 +4,18 @@ const User = require('../login-register/src/models/User');
 
 // Middleware to check if the user is authenticated
 exports.isAuthenticated = async (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-
-    if (!token) {
-        return res.status(401).json({ message: 'Authentication required' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Unauthorized: No token provided' });
     }
 
+    const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id);
-
-        if (!user) {
-            return res.status(401).json({ message: 'User not found' });
-        }
-
-        req.user = user; // Attach user to the request object
+        req.user = decoded; // Attach user info to request
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Invalid token' });
+        return res.status(401).json({ message: 'Unauthorized: Invalid token' });
     }
 };
 
