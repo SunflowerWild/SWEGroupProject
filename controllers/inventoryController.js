@@ -154,17 +154,11 @@ exports.getInventorySummary = async (req, res) => {
 // Checkout an item by its unique ID or find the next available one
 exports.checkoutItem = async (req, res) => {
     try {
-        const { id, type, location } = req.body; // Accept type and location for fallback search
-        const userEmail = req.user?.email || req.body.email; // Get the user's email from req.user or req.body
+        const { id, type, location } = req.body;
+        const userEmail = req.user?.email || req.body.email;
 
-        let part;
+        let part = await Part.findById(id);
 
-        // If an ID is provided, try to find the item by ID
-        if (id) {
-            part = await Part.findById(id);
-        }
-
-        // If no ID is provided or the item is unavailable, find the next available item of the same type and location
         if (!part || !part.isAvailable) {
             part = await Part.findOne({ type, location, isAvailable: true });
         }
@@ -178,11 +172,15 @@ exports.checkoutItem = async (req, res) => {
         part.isAvailable = false;
         await part.save();
 
-        // Retrieve all admin users
-        const admins = await User.find({ isAdmin: true }, 'email'); // Get only the email field
-        const adminEmails = admins.map(admin => admin.email);
+        // Send success response immediately
+        res.json({
+            message: `Item checked out successfully`,
+            part,
+        });
 
-        // Prepare the email content
+        // Perform additional operations (e.g., email notifications) asynchronously
+        const admins = await User.find({ isAdmin: true }, 'email');
+        const adminEmails = admins.map(admin => admin.email);
         const emailSubject = `Item Checked Out: ${part.name || 'Unnamed Item'}`;
         const emailBody = `
             The following item has been checked out:
@@ -192,34 +190,10 @@ exports.checkoutItem = async (req, res) => {
             - Checked out by: ${userEmail}
         `;
 
-        // Send email to all admins
         for (const adminEmail of adminEmails) {
-            await sendEmail(adminEmail, emailSubject, emailBody);
+            sendEmail(adminEmail, emailSubject, emailBody).catch(err => console.error('Error sending email:', err));
         }
-
-        // Send email to the user checking out the item
-        await sendEmail(userEmail, emailSubject, emailBody);
-
-        console.log("Creating history record:", {
-            partName: part.name,
-            partNumber: part._id.toString(),
-            action: 'checkout',
-            user: userEmail,
-        });
-
-        // Create a history entry
-        await History.create({
-            partName: part.name || 'Unnamed Item',
-            partNumber: part._id.toString(),
-            action: 'Check out',
-            user: userEmail,
-        });
-
-
-        res.json({
-            message: `Item checked out successfully`,
-            part,
-        });
+        sendEmail(userEmail, emailSubject, emailBody).catch(err => console.error('Error sending email:', err));
     } catch (error) {
         console.error('Error checking out item:', error);
         res.status(500).json({ message: 'Server error' });
