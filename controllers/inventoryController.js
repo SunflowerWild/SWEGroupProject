@@ -3,6 +3,7 @@ const PC = require('../login-register/src/models/PC');
 const mongoose = require('mongoose'); // Add this line
 const User = require('../login-register/src/models/User'); // Import the User model
 const sendEmail = require('../login-register/src/utils/emailService'); // Import the sendEmail utility
+const History = require('../login-register/src/models/History'); // Import the History model
 
 
 
@@ -199,6 +200,15 @@ exports.checkoutItem = async (req, res) => {
         // Send email to the user checking out the item
         await sendEmail(userEmail, emailSubject, emailBody);
 
+        // Create a history entry
+        await History.create({
+            partName: part.name || 'Unnamed Item',
+            partNumber: part._id.toString(),
+            action: 'Check out',
+            user: userEmail,
+        });
+
+
         res.json({
             message: `Item checked out successfully`,
             part,
@@ -239,27 +249,13 @@ exports.returnItem = async (req, res) => {
         part.isAvailable = true;
         await part.save();
 
-        // Retrieve all admin users
-        const admins = await User.find({ isAdmin: true }, 'email'); // Get only the email field
-        const adminEmails = admins.map(admin => admin.email);
-
-        // Prepare the email content
-        const emailSubject = `Item Returned: ${part.name || 'Unnamed Item'}`;
-        const emailBody = `
-            The following item has been returned:
-            - Name: ${part.name || 'Unnamed Item'}
-            - Type: ${itemType}
-            - Location: ${part.location || 'Unknown'}
-            - Verified by: ${adminEmail}
-        `;
-
-        // Send email to all admins
-        for (const adminEmail of adminEmails) {
-            await sendEmail(adminEmail, emailSubject, emailBody);
-        }
-
-        // Send email to the user who returned the item
-        await sendEmail(adminEmail, emailSubject, emailBody);
+        // Create a history entry
+        await History.create({
+            partName: part.name || 'Unnamed Item',
+            partNumber: part._id.toString(),
+            action: 'return',
+            user: adminEmail,
+        });
 
         res.json({
             message: `${itemType.toUpperCase()} returned successfully`,
@@ -268,6 +264,16 @@ exports.returnItem = async (req, res) => {
         });
     } catch (error) {
         console.error('Error returning item:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.getHistory = async (req, res) => {
+    try {
+        const history = await History.find().sort({ timestamp: -1 }); // Sort by most recent first
+        res.json(history);
+    } catch (error) {
+        console.error('Error fetching history:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
