@@ -9,8 +9,6 @@ import { Link as RouterLink } from 'react-router-dom'
 //import Paper from '@mui/material/Paper';
 //import Avatar from '@mui/material/Avatar';
 //import Grid from '@mui/material/Grid';
-import api from '../utils/api'; // Import your API utility
-import apiRoutes from '../utils/apiRoutes'; // Import your API routes
 
 import ApiIcon from '@mui/icons-material/Api';
 

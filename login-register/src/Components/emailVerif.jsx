@@ -1,9 +1,7 @@
-import React from "react";
-import { Stack, TextField, Paper, Avatar, Checkbox, Grid, FormControlLabel, Button, Link, Typography } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { blueGrey, indigo, } from '@mui/material/colors';
-import { DashboardHeader } from "./DashboardHeader"; // adjust path as needed
-
+import React, { useState } from "react";
+import { Grid, TextField, Paper, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import api from '../utils/api'; // Import your API utility
 
 const EmailAuth = () => {
     const paperStyle = { padding: 26, height: '20vh', width: 480, margin: '20px auto' };
@@ -46,9 +44,29 @@ const EmailAuth = () => {
             style={{ minHeight: '100vh' }}
         >
             <Paper elevation={10} style={paperStyle}>
-                <Grid align = 'center'>
-                <h1>Email Verification</h1>
-                <TextField id="outlined-basic" label="Verification Code" placeholder='Enter Code' variant="outlined" fullWidth required/>
+                <Grid align="center">
+                    <h1>Email Verification</h1>
+                    <TextField
+                        id="outlined-basic"
+                        label="Verification Code"
+                        placeholder="Enter Code"
+                        variant="outlined"
+                        fullWidth
+                        required
+                        value={code} // Bind to the code state
+                        onChange={(e) => setCode(e.target.value)} // Update the code state on input change
+                    />
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                    <Button
+                        type="submit"
+                        color="primary"
+                        variant="contained"
+                        style={btstyle}
+                        fullWidth
+                        onClick={handleSubmit}
+                    >
+                        Verify
+                    </Button>
                 </Grid>
             </Paper>
         </Grid>

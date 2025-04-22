@@ -4,6 +4,11 @@ const { isAuthenticated, isAdmin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+//test
+router.get('/test', (req, res) => {
+    res.json({ message: 'Inventory API is working!' });
+});
+
 // Routes for inventory management
 router.post('/parts', isAuthenticated, isAdmin, addPart); // Only admins can add parts
 router.post('/pcs', isAuthenticated, isAdmin, addPC); // Only admins can add PCs
