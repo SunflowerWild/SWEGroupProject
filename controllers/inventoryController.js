@@ -151,30 +151,54 @@ exports.getInventorySummary = async (req, res) => {
     }
 };
 
-// Checkout an item by its unique ID
+// Checkout an item by its unique ID or find the next available one
 exports.checkoutItem = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { id, type, location } = req.body; // Accept type and location for fallback search
         const userEmail = req.user?.email || req.body.email; // Get the user's email from req.user or req.body
 
-        // Try to find the item as a part first
-        let part = await Part.findById(id);
-        let itemType = 'part';
+        let part;
 
-        // If not found, try to find it as a PC
-        if (!part) {
-            part = await PC.findById(id);
-            itemType = 'pc';
+        // If an ID is provided, try to find the item by ID
+        if (id) {
+            part = await Part.findById(id);
+        }
+
+        // If no ID is provided or the item is unavailable, find the next available item of the same type and location
+        if (!part || !part.isAvailable) {
+            part = await Part.findOne({ type, location, isAvailable: true });
         }
 
         if (!part) {
-            return res.status(404).json({ message: 'Item not found' });
+            return res.status(404).json({ message: 'No available items found for checkout.' });
         }
 
         // Mark the item as checked out
         part.checkedOut = true;
         part.isAvailable = false;
         await part.save();
+
+        // Retrieve all admin users
+        const admins = await User.find({ isAdmin: true }, 'email'); // Get only the email field
+        const adminEmails = admins.map(admin => admin.email);
+
+        // Prepare the email content
+        const emailSubject = `Item Checked Out: ${part.name || 'Unnamed Item'}`;
+        const emailBody = `
+            The following item has been checked out:
+            - Name: ${part.name || 'Unnamed Item'}
+            - Type: ${part.type || 'Unknown'}
+            - Location: ${part.location || 'Unknown'}
+            - Checked out by: ${userEmail}
+        `;
+
+        // Send email to all admins
+        for (const adminEmail of adminEmails) {
+            await sendEmail(adminEmail, emailSubject, emailBody);
+        }
+
+        // Send email to the user checking out the item
+        await sendEmail(userEmail, emailSubject, emailBody);
 
         // Create a history entry
         await History.create({
@@ -184,9 +208,9 @@ exports.checkoutItem = async (req, res) => {
             user: userEmail,
         });
 
+
         res.json({
-            message: `${itemType.toUpperCase()} checked out successfully`,
-            itemType,
+            message: `Item checked out successfully`,
             part,
         });
     } catch (error) {
@@ -213,6 +237,11 @@ exports.returnItem = async (req, res) => {
 
         if (!part) {
             return res.status(404).json({ message: 'Item not found' });
+        }
+
+        // Check if the item is already available
+        if (part.isAvailable) {
+            return res.status(400).json({ message: 'Item is already available' });
         }
 
         // Mark the item as returned

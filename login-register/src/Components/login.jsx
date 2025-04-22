@@ -41,14 +41,15 @@ const Login = () => {
             return;
         }
         try {
-            const response = await api.post('/users/login', {
-                email,
-                password
-            });
+            const response = await api.post('/users/login', { email, password });
 
             if (response.data.token) {
+                // Store the token in localStorage
                 localStorage.setItem('token', response.data.token);
-                navigate('/home'); 
+                console.log('Token stored in localStorage:', response.data.token); // Debug log
+
+                // Redirect to the home page
+                navigate('/home');
             }
         } catch (error) {
             console.error('Login error:', error);
