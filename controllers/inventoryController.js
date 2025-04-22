@@ -1,6 +1,9 @@
 const Part = require('../login-register/src/models/Part');
 const PC = require('../login-register/src/models/PC');
 const mongoose = require('mongoose'); // Add this line
+const User = require('../login-register/src/models/User'); // Import the User model
+const sendEmail = require('../login-register/src/utils/emailService'); // Import the sendEmail utility
+
 
 
 require('dotenv').config();
@@ -151,14 +154,15 @@ exports.getInventorySummary = async (req, res) => {
 exports.checkoutItem = async (req, res) => {
     try {
         const { id } = req.body;
+        const userEmail = req.user?.email || req.body.email; // Get the user's email from req.user or req.body
 
-        // Try to find as part first
-        let part = await Part.findByID(id);
-   
+        // Try to find the item as a part first
+        let part = await Part.findById(id);
+        let itemType = 'part';
 
-        // If not found, try to find as PC
+        // If not found, try to find it as a PC
         if (!part) {
-            part = await PC.findByID(id);
+            part = await PC.findById(id);
             itemType = 'pc';
         }
 
@@ -166,33 +170,57 @@ exports.checkoutItem = async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
+        // Mark the item as checked out
         part.checkedOut = true;
         part.isAvailable = false;
         await part.save();
 
+        // Retrieve all admin users
+        const admins = await User.find({ isAdmin: true }, 'email'); // Get only the email field
+        const adminEmails = admins.map(admin => admin.email);
+
+        // Prepare the email content
+        const emailSubject = `Item Checked Out: ${part.name || 'Unnamed Item'}`;
+        const emailBody = `
+            The following item has been checked out:
+            - Name: ${part.name || 'Unnamed Item'}
+            - Type: ${itemType}
+            - Location: ${part.location || 'Unknown'}
+            - Checked out by: ${userEmail}
+        `;
+
+        // Send email to all admins
+        for (const adminEmail of adminEmails) {
+            await sendEmail(adminEmail, emailSubject, emailBody);
+        }
+
+        // Send email to the user checking out the item
+        await sendEmail(userEmail, emailSubject, emailBody);
+
         res.json({
-            message: `${itemType.toUpperCase()} deleted successfully`,
+            message: `${itemType.toUpperCase()} checked out successfully`,
             itemType,
-            deletedItem
+            part,
         });
     } catch (error) {
-        console.error('Error deleting item:', error);
+        console.error('Error checking out item:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
-// Checkout an item by its unique ID
+// Return an item by its unique ID
 exports.returnItem = async (req, res) => {
     try {
         const { id } = req.body;
+        const adminEmail = req.user.email; // Get the admin's email from req.user
 
-        // Try to find as part first
-        let part = await Part.findByID(id);
+        // Try to find the item as a part first
+        let part = await Part.findById(id);
+        let itemType = 'part';
 
-
-        // If not found, try to find as PC
+        // If not found, try to find it as a PC
         if (!part) {
-            part = await PC.findByID(id);
+            part = await PC.findById(id);
             itemType = 'pc';
         }
 
@@ -200,17 +228,40 @@ exports.returnItem = async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
+        // Mark the item as returned
         part.checkedOut = false;
         part.isAvailable = true;
         await part.save();
 
+        // Retrieve all admin users
+        const admins = await User.find({ isAdmin: true }, 'email'); // Get only the email field
+        const adminEmails = admins.map(admin => admin.email);
+
+        // Prepare the email content
+        const emailSubject = `Item Returned: ${part.name || 'Unnamed Item'}`;
+        const emailBody = `
+            The following item has been returned:
+            - Name: ${part.name || 'Unnamed Item'}
+            - Type: ${itemType}
+            - Location: ${part.location || 'Unknown'}
+            - Verified by: ${adminEmail}
+        `;
+
+        // Send email to all admins
+        for (const adminEmail of adminEmails) {
+            await sendEmail(adminEmail, emailSubject, emailBody);
+        }
+
+        // Send email to the user who returned the item
+        await sendEmail(adminEmail, emailSubject, emailBody);
+
         res.json({
-            message: `${itemType.toUpperCase()} deleted successfully`,
+            message: `${itemType.toUpperCase()} returned successfully`,
             itemType,
-            deletedItem
+            part,
         });
     } catch (error) {
-        console.error('Error deleting item:', error);
+        console.error('Error returning item:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
