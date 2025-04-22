@@ -8,6 +8,7 @@ import {Dashboard} from './Components/home'
 import EmailAuth from './Components/emailVerif'
 import {Inventory} from './Components/inventory';
 import {History} from './Components/history';
+import {DashboardHeader} from './Components/DashboardHeader'
 
 
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/home" element={<Dashboard />} /> {/* Define the home route */}
         <Route path="/inv" element={<Inventory/>}/>
         <Route path="/history" element={<History/>}/>
+        <Route path="/header" element={<DashboardHeader/>}/>
 
         <Route path="*" element={<h1> PAGE NOT FOUND</h1>}/>
       </Routes>

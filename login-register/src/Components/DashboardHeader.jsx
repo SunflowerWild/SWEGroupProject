@@ -1,7 +1,9 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import { Toolbar, Button, Box, IconButton } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { blueGrey, indigo } from "@mui/material/colors";
+import { Link as RouterLink } from 'react-router-dom';
 
 const theme = createTheme({
   palette: {
@@ -9,8 +11,12 @@ const theme = createTheme({
     secondary: blueGrey,
   },
 });
-
 export const DashboardHeader = () => {
+  const navigate = useNavigate(); // Add useNavigate hook
+  const handleLogout = () => {
+    navigate('/'); // Redirect to the login page
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -61,7 +67,8 @@ export const DashboardHeader = () => {
                   backgroundColor: "#4090e6",
                 },
               }}
-              href="/logout"
+              onClick={handleLogout}
+              //href="/logout"
             >
               Logout
             </Button>
