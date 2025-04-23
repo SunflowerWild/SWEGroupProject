@@ -158,7 +158,6 @@ export const History = () => {
             <Avatar style={avatarStyle}><HistoryIcon /></Avatar>
             <h2>Transaction History</h2>
           </Grid>
-
           {loading ? (
             <Grid container justifyContent="center" padding={4}>
               <CircularProgress />
@@ -196,7 +195,7 @@ export const History = () => {
                       <TableCell>{item.user}</TableCell>
                       <TableCell>{item.action}</TableCell>
                       <TableCell>
-                        {item.action === 'Check out' && (
+                        {(
                           <Button
                             variant="contained"
                             color="primary"
